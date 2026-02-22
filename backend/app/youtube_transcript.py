@@ -7,7 +7,7 @@ from youtube_transcript_api._errors import (
     NoTranscriptFound,
     VideoUnavailable,
 )
-from app.nlp import analyze_sentences
+
 
 TIMEOUT_SECONDS = 5
 
@@ -154,7 +154,8 @@ def fetch_transcript(video_id: str) -> Dict:
         sentences = merge_segments(raw_segments)
         
         #NLP分析
-        sentences=analyze_sentences(sentences)
+        from app.nlp import analyze_sentences
+        sentences = analyze_sentences(sentences)
 
         # 返回结构
         return {
