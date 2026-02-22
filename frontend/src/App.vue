@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, nextTick, onMounted, onUnmounted, computed } from "vue"
 import axios from "axios"
+import headerImage from "./IMG_7318.PNG"
 
 const url = ref("")
 const videoId = ref("")
@@ -362,14 +363,28 @@ onUnmounted(() => {
   <div
     @click="hidePopup"
     style="
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       position: relative;
     "
   >
-    <h1 style="text-align: center; color: #2d3436;">Lecteur de Langue IA</h1>
+    <h1 style="text-align: center; color: #2d3436;">Audictée</h1>
+
+    <div style="display: flex; justify-content: center; margin-bottom: 14px;">
+      <img
+        :src="headerImage"
+        alt="Audictee visual"
+        style="
+          width: min(260px, 60vw);
+          height: auto;
+          border-radius: 12px;
+          object-fit: cover;
+          display: block;
+        "
+      />
+    </div>
 
     <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
       <input
@@ -431,7 +446,7 @@ onUnmounted(() => {
         :style="{
           padding: '0 16px',
           height: '42px',
-          background: !grammarMode || sentences.length === 0 ? '#ccc' : (fillBlankMode ? '#2f855a' : '#2b6cb0'),
+          background: !grammarMode || sentences.length === 0 ? '#ccc' : (fillBlankMode ? '#5f926a' : '#996ba2'),
           color: 'white',
           border: 'none',
           borderRadius: '8px',
@@ -445,119 +460,134 @@ onUnmounted(() => {
       </button>
     </div>
 
-    <div
-      v-show="videoId"
-      style="
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      "
-    >
-      <div id="player"></div>
-      <div
-        v-if="stats.total > 0"
-        style="
-          margin-top: 15px;
-          padding: 10px 14px;
-          background: #f8f9fa;
-          border-radius: 8px;
-          font-size: 14px;
-          display: flex;
-          justify-content: space-between;
-        "
-      >
-        <span>Filled: {{ stats.total }}</span>
-        <span>Correct: {{ stats.correct }}</span>
-        <span>Accuracy: {{ stats.accuracy }}%</span>
-      </div>
-
-      <div
-        v-if="Object.keys(wrongBank).length > 0"
-        style="
-          margin-top: 12px;
-          padding: 10px 14px;
-          background: #fff3f3;
-          border-radius: 8px;
-          font-size: 14px;
-        "
-      >
-        <div style="font-weight: 600; margin-bottom: 6px;">
-          Wrong words:
+    <div class="main-layout">
+      <div class="video-column">
+        <div
+          v-show="videoId"
+          style="
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+          "
+        >
+          <div id="player"></div>
         </div>
 
         <div
-          v-for="(count, word) in wrongBank"
-          :key="word"
+          v-if="!videoId"
+          style="
+            border-radius: 12px;
+            border: 1px dashed #dfe6e9;
+            background: #fafafa;
+            color: #95a5a6;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            text-align: center;
+          "
         >
-          {{ word }} ({{ count }})
+          Collez un lien YouTube puis cliquez sur "Charger"
         </div>
 
+        <div
+          v-if="stats.total > 0"
+          style="
+            margin-top: 15px;
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+          "
+        >
+          <span>Filled: {{ stats.total }}</span>
+          <span>Correct: {{ stats.correct }}</span>
+          <span>Accuracy: {{ stats.accuracy }}%</span>
+        </div>
+
+        <div
+          v-if="Object.keys(wrongBank).length > 0"
+          style="
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #fff3f3;
+            border-radius: 8px;
+            font-size: 14px;
+          "
+        >
+          <div style="font-weight: 600; margin-bottom: 6px;">
+            Wrong words:
+          </div>
+
+          <div
+            v-for="(count, word) in wrongBank"
+            :key="word"
+          >
+            {{ word }} ({{ count }})
+          </div>
+        </div>
       </div>
 
-
-
-    </div>
-
-    <div
-      v-if="sentences.length > 0"
-      style="
-        margin-top: 25px;
-        max-height: 450px;
-        overflow-y: auto;
-        border: 1px solid #eee;
-        border-radius: 12px;
-        padding: 15px;
-        background: #fff;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-      "
-    >
-      <div
-        v-for="(s, sIndex) in sentences"
-        :key="sIndex"
-        :ref="(el) => {
-          if (el) sentenceRefs[sIndex] = el
-        }"
-        @click="handleSentenceClick(s, sIndex)"
-        :style="{
-          padding: '14px 18px',
-          margin: '12px 0',
-          cursor: 'pointer',
-          borderRadius: '10px',
-          transition: 'all 0.2s ease',
-          backgroundColor: sIndex === activeIndex ? '#fff9db' : 'transparent',
-          borderLeft:
-            sIndex === activeIndex ? '4px solid #fcc419' : '4px solid transparent',
-          color: sIndex === activeIndex ? '#000' : '#444',
-          fontSize: '18px',
-          lineHeight: '1.8',
-          wordBreak: 'normal',
-          overflowWrap: 'break-word',
-          whiteSpace: 'normal',
-          textAlign: 'left',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'baseline',
-          columnGap: '0px'
-        }"
-      >
-
-        <div style="
-        font-size:12px; 
-        color:#999; 
-        margin-bottom:6px;
-        display:block;
-        "
+      <div class="transcript-column">
+        <div
+          v-if="sentences.length > 0"
+          style="
+            max-height: 560px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            background: #fff;
+          "
         >
-          Difficulty: {{ computeDifficulty(s) }}
-        </div>
-        <!-- Grammar mode: token layout (supports fill-blank + popup) -->
-        <template v-if="grammarMode">
-          <template v-for="(token, tIndex) in getTokens(s)" :key="tIndex">
-            <!-- fill blank input: only for selected 30% NOUN/VERB -->
-            <template v-if="fillBlankMode && blankMask[sIndex]?.[tIndex]">
-              <input
+          <div
+            v-for="(s, sIndex) in sentences"
+            :key="sIndex"
+            :ref="(el) => {
+              if (el) sentenceRefs[sIndex] = el
+            }"
+            @click="handleSentenceClick(s, sIndex)"
+            :style="{
+              padding: '14px 18px',
+              margin: '12px 0',
+              cursor: 'pointer',
+              borderRadius: '10px',
+              transition: 'all 0.2s ease',
+              backgroundColor: sIndex === activeIndex ? '#fff9db' : 'transparent',
+              borderLeft:
+                sIndex === activeIndex ? '4px solid #fcc419' : '4px solid transparent',
+              color: sIndex === activeIndex ? '#000' : '#444',
+              fontSize: '18px',
+              lineHeight: '1.8',
+              wordBreak: 'normal',
+              overflowWrap: 'break-word',
+              whiteSpace: 'normal',
+              textAlign: 'left',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'baseline',
+              columnGap: '0px'
+            }"
+          >
+
+            <div style="
+            font-size:12px; 
+            color:#999; 
+            margin-bottom:6px;
+            display:block;
+            "
+            >
+              Difficulty: {{ computeDifficulty(s) }}
+            </div>
+            <!-- Grammar mode: token layout (supports fill-blank + popup) -->
+            <template v-if="grammarMode">
+              <template v-for="(token, tIndex) in getTokens(s)" :key="tIndex">
+                <!-- fill blank input: only for selected 30% NOUN/VERB -->
+                <template v-if="fillBlankMode && blankMask[sIndex]?.[tIndex]">
+                  <input
                 :value="answers[sIndex]?.[tIndex]?.value ?? ''"
                 @click.stop
                 @input.stop="onInput(sIndex, tIndex, $event.target.value)"
@@ -580,76 +610,75 @@ onUnmounted(() => {
                   fontSize: '16px',
                   lineHeight: '1.4',
                 }"
-              />
-              <span
-                @click.stop="revealAnswer(sIndex, tIndex, token)"
-                style="font-size: 12px; color: #888; cursor: pointer; margin-right: 8px;"
-                title="Reveal answer"
-              >
-                ↩
-              </span>
+                  />
+                  <span
+                    @click.stop="revealAnswer(sIndex, tIndex, token)"
+                    style="font-size: 12px; color: #888; cursor: pointer; margin-right: 8px;"
+                    title="Reveal answer"
+                  >
+                    ↩
+                  </span>
+                </template>
+
+                <!-- normal token -->
+                <span
+                  v-else
+                  @click.stop="showPopup(token, $event)"
+                  style="user-select: none;"
+                  :style="{
+                    marginRight: isPunct(token.text) ? '0px' : '4px',
+                    fontWeight: token.pos === 'VERB' ? 'bold' : 'normal',
+                    color:
+                      token.pos === 'NOUN'
+                        ? '#a8c4e6'
+                        : token.pos === 'VERB'
+                        ? '#f4a4a4'
+                        : token.pos === 'ADJ'
+                        ? '#d9c36c'
+                        : 'inherit',
+                  }"
+                >
+                  {{ token.text }}
+                </span>
+
+                <!-- optional: keep opening punctuation spacing simple -->
+                <span v-if="false && isOpenPunct(token.text)"></span>
+              </template>
             </template>
 
-            <!-- normal token -->
-            <span
-              v-else
-              @click.stop="showPopup(token, $event)"
-              style="user-select: none;"
-              :style="{
-                marginRight: isPunct(token.text) ? '0px' : '4px',
-                fontWeight: token.pos === 'VERB' ? 'bold' : 'normal',
-                color:
-                  token.pos === 'NOUN'
-                    ? '#a8c4e6'
-                    : token.pos === 'VERB'
-                    ? '#f4a4a4'
-                    : token.pos === 'ADJ'
-                    ? '#d9c36c'
-                    : 'inherit',
-              }"
-            >
-              {{ token.text }}
+            <!-- Reading mode: pure text -->
+            <span v-else>
+              {{ s.text }}
             </span>
 
-            <!-- optional: keep opening punctuation spacing simple -->
-            <span v-if="false && isOpenPunct(token.text)"></span>
-          </template>
-        </template>
+            <div
+              v-if="similarIndex === sIndex"
+              style="
+                margin-top:8px;
+                padding:8px;
+                background:#f8f9fa;
+                border-left:3px solid #ccc;
+                font-size:14px;
+                color:#555;
+              "
+            >
+              <div style="font-size:12px; color:#999; margin-bottom:4px;">
+                Most similar sentence:
+              </div>
 
-        <!-- Reading mode: pure text -->
-        <span v-else>
-          {{ s.text }}
-        </span>
-
-        <div
-          v-if="similarIndex === sIndex"
-          style="
-            margin-top:8px;
-            padding:8px;
-            background:#f8f9fa;
-            border-left:3px solid #ccc;
-            font-size:14px;
-            color:#555;
-          "
-        >
-          <div style="font-size:12px; color:#999; margin-bottom:4px;">
-            Most similar sentence:
-          </div>
-
-          <div v-if="sentences[s.most_similar]">
-            {{ sentences[s.most_similar].text }}
+              <div v-if="sentences[s.most_similar]">
+                {{ sentences[s.most_similar].text }}
+              </div>
+            </div>
           </div>
         </div>
-
-
+        <div
+          v-else-if="!loading"
+          style="text-align: center; color: #b2bec3; margin-top: 50px;"
+        >
+          En attente d'un lien pour charger la transcription...
+        </div>
       </div>
-    </div>
-
-    <div
-      v-else-if="!loading"
-      style="text-align: center; color: #b2bec3; margin-top: 50px;"
-    >
-      En attente d'un lien pour charger la transcription...
     </div>
 
     <!-- Popup -->
@@ -719,3 +748,37 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.main-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.video-column {
+  flex: 0 0 44%;
+  min-width: 320px;
+}
+
+.transcript-column {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .main-layout {
+    flex-direction: column;
+  }
+
+  .video-column {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .transcript-column {
+    width: 100%;
+  }
+}
+</style>
