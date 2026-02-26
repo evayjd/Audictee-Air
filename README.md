@@ -1,4 +1,14 @@
 AUDICTEE is a full-stack web application for French listening and grammar practice.  
+
+### About the name
+
+Le nom 'Audictée' est un jeu de mots : il fusionne les mots français 'Audition' et 'Dictée', tout en étant un homophone quasi parfait du mot anglais 'Addicted' (accro)
+
+
+The name 'Audictée' is a play on words. It combines the French terms 'Audition' (hearing) and 'Dictée' (dictation), while sounding identical to the English word 'Addicted'.
+
+
+
 在我学习法语的痛苦路上构思的网页，但目前很多功能和判断方法很简单粗暴
 
 
